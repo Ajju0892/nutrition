@@ -11,7 +11,10 @@ export default function SettingsView() {
     offPeakRate: settings.offPeakRate,
     aiSensitivity: settings.aiSensitivity,
     autoLeakShutoff: settings.autoLeakShutoff,
-    pushNotifications: settings.pushNotifications
+    pushNotifications: settings.pushNotifications,
+    evTargetSoc: settings.evTargetSoc || 85,
+    evDepartureTime: settings.evDepartureTime || '07:00',
+    evChargingMode: settings.evChargingMode || 'Off-Peak Smart Charge'
   });
 
   const handleSave = (e) => {
@@ -19,7 +22,8 @@ export default function SettingsView() {
     updateSettings({
       ...formState,
       peakRate: parseFloat(formState.peakRate),
-      offPeakRate: parseFloat(formState.offPeakRate)
+      offPeakRate: parseFloat(formState.offPeakRate),
+      evTargetSoc: parseInt(formState.evTargetSoc, 10)
     });
   };
 
@@ -31,7 +35,10 @@ export default function SettingsView() {
         offPeakRate: 0.14,
         aiSensitivity: 'Optimal (Balanced)',
         autoLeakShutoff: true,
-        pushNotifications: true
+        pushNotifications: true,
+        evTargetSoc: 85,
+        evDepartureTime: '07:00',
+        evChargingMode: 'Off-Peak Smart Charge'
       });
       setFormState({
         gridStandard: 'Northern European (Nordic Power Pool)',
@@ -39,7 +46,10 @@ export default function SettingsView() {
         offPeakRate: 0.14,
         aiSensitivity: 'Optimal (Balanced)',
         autoLeakShutoff: true,
-        pushNotifications: true
+        pushNotifications: true,
+        evTargetSoc: 85,
+        evDepartureTime: '07:00',
+        evChargingMode: 'Off-Peak Smart Charge'
       });
       showToast('Settings Reset', 'Configuration reverted to factory defaults.', 'restart_alt');
     }
@@ -244,6 +254,73 @@ export default function SettingsView() {
                     />
                     <div className="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
                   </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: EV Smart Charging & Departure Setup */}
+          <div className="p-8 rounded-2xl bg-surface-container-lowest border border-outline-variant/10 shadow-sm space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-tertiary/10 text-tertiary flex items-center justify-center">
+                <span className="material-symbols-outlined">ev_station</span>
+              </div>
+              <div>
+                <h3 className="font-headline text-xl font-bold text-on-surface">
+                  EV Smart Charging & Departure Setup
+                </h3>
+                <p className="text-xs text-outline">Target SoC, departure time & off-peak tariff dispatch</p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <div>
+                <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-outline mb-2">
+                  <span>Target Battery State of Charge (SoC)</span>
+                  <span className="text-primary font-headline text-base font-bold">{formState.evTargetSoc}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="50"
+                  max="100"
+                  step="5"
+                  value={formState.evTargetSoc}
+                  onChange={(e) => setFormState({ ...formState, evTargetSoc: e.target.value })}
+                  className="w-full h-2 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+                <div className="flex justify-between text-[11px] text-outline mt-1.5 font-medium">
+                  <span>50% (Daily)</span>
+                  <span>80% (Health Optimal)</span>
+                  <span>100% (Long Distance)</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-outline mb-2">
+                    Ready by Departure Time
+                  </label>
+                  <input
+                    type="time"
+                    value={formState.evDepartureTime}
+                    onChange={(e) => setFormState({ ...formState, evDepartureTime: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-surface-container-low border-0 text-sm font-headline font-bold text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-outline mb-2">
+                    Dispatch Strategy
+                  </label>
+                  <select
+                    value={formState.evChargingMode}
+                    onChange={(e) => setFormState({ ...formState, evChargingMode: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-surface-container-low border-0 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:outline-none"
+                  >
+                    <option value="Off-Peak Smart Charge">Off-Peak Tariff Priority ($0.14/kWh)</option>
+                    <option value="Solar Surplus Only">100% Rooftop Solar Surplus</option>
+                    <option value="Immediate Fast Charge">Immediate Grid Fast Charge (Max Power)</option>
+                  </select>
                 </div>
               </div>
             </div>

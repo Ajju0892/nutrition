@@ -274,6 +274,7 @@ export const DEFAULT_SETTINGS = {
   themeMode: 'light',
   evTargetSoc: 85,
   evDepartureTime: '07:00',
+  evChargingMode: 'Off-Peak Smart Charge',
   gateways: [
     { name: 'EcoSync Hub Gateway', status: 'Online', ip: '192.168.1.140', ping: '12ms' },
     { name: 'Ultrasonic Water Meter V2', status: 'Connected', battery: '96%', signal: 'Strong' },
