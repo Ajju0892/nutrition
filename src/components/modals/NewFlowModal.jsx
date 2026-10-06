@@ -1,6 +1,44 @@
 import React, { useState } from 'react';
 import { useEcoSync } from '../../context/EcoSyncContext.jsx';
 
+const PRESET_TEMPLATES = [
+  {
+    title: 'Smart Pool Pump Solar Sync',
+    category: 'energy',
+    icon: 'pool',
+    description: 'Diverts solar surplus to run pool filtration pumps when rooftop solar exceeds 3.0 kW.',
+    trigger: 'Rooftop solar generation > 3.0 kW',
+    action: 'Run primary pool filtration pump at full capacity',
+    impact: '-$14.50/mo'
+  },
+  {
+    title: 'Sub-Zero Pipe Protection',
+    category: 'water',
+    icon: 'ac_unit',
+    description: 'Triggers pulse micro-recirculation when outdoor temperature drops below 0°C.',
+    trigger: 'Outdoor Temp < 0°C & zero fixture flow for 2h',
+    action: 'Pulse recirculating pump 45s every 30 mins',
+    impact: 'Zero freeze risk'
+  },
+  {
+    title: 'Off-Peak Washing Machine Delay',
+    category: 'water',
+    icon: 'local_laundry_service',
+    description: 'Holds washing machine start until utility tariff drops to off-peak rate.',
+    trigger: 'Tariff drops to off-peak ($0.14/kWh)',
+    action: 'Release smart washer lock & send start signal',
+    impact: '-$6.20/mo'
+  },
+  {
+    title: 'Midnight Quiet HVAC Ramp',
+    category: 'climate',
+    icon: 'bedtime',
+    description: 'Lowers HVAC compressor speed and fan noise after 11 PM for quiet sleep.',
+    trigger: 'Time == 11:00 PM',
+    action: 'Set thermostat to 22°C (Quiet Mode 35dB)',
+    impact: '-8% kWh'
+  }
+];
 
 export default function NewFlowModal() {
   const { activeModal, setActiveModal, addAutomation } = useEcoSync();
@@ -16,6 +54,17 @@ export default function NewFlowModal() {
 
   const isOpen = activeModal === 'new_flow';
   if (!isOpen) return null;
+
+  const handleApplyPreset = (preset) => {
+    setFormData({
+      title: preset.title,
+      category: preset.category,
+      description: preset.description,
+      trigger: preset.trigger,
+      action: preset.action,
+      impact: preset.impact
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,14 +93,14 @@ export default function NewFlowModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 glass-modal-bg flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 glass-modal-bg flex items-center justify-center p-4 overflow-y-auto"
       onClick={() => setActiveModal(null)}
     >
       <div
-        className="w-full max-w-lg bg-surface-container-lowest rounded-2xl p-6 md:p-8 shadow-2xl border border-outline-variant/20 animate-scale-up"
+        className="w-full max-w-xl bg-surface-container-lowest rounded-2xl p-6 md:p-8 shadow-2xl border border-outline-variant/20 animate-scale-up my-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-6">
+        <div className="flex items-center justify-between pb-4 border-b border-outline-variant/15 mb-5">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-2xl">auto_mode</span>
@@ -69,6 +118,29 @@ export default function NewFlowModal() {
           >
             <span className="material-symbols-outlined text-xl">close</span>
           </button>
+        </div>
+
+        {/* Quick Presets Carousel */}
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-outline mb-2">
+            One-Click Preset Templates
+          </p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {PRESET_TEMPLATES.map((p, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleApplyPreset(p)}
+                className="p-2.5 rounded-xl bg-surface-container-low hover:bg-primary/10 text-left border border-outline-variant/10 transition-all group"
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-on-surface group-hover:text-primary mb-1">
+                  <span className="material-symbols-outlined text-base text-primary">{p.icon}</span>
+                  <span className="truncate">{p.title}</span>
+                </div>
+                <span className="text-[10px] text-outline line-clamp-1">{p.impact} • {p.category}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -175,3 +247,4 @@ export default function NewFlowModal() {
     </div>
   );
 }
+

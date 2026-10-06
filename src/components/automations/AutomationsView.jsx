@@ -23,7 +23,7 @@ export default function AutomationsView() {
   return (
     <div className="space-y-10 animate-fade-in">
       {/* Editorial Header Section */}
-      <section className="mb-10">
+      <section className="mb-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-xl">
             <span className="inline-block px-3 py-1 rounded-full bg-primary-fixed/50 text-on-primary-fixed font-label text-xs font-bold mb-4">
@@ -63,6 +63,38 @@ export default function AutomationsView() {
             >
               <span className="material-symbols-outlined text-sm">add</span>
               <span>New Flow</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Live Simulation Controls Bar */}
+        <div className="mt-6 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/15 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-xs font-semibold text-on-surface">
+            <span className="material-symbols-outlined text-primary text-lg">science</span>
+            <span>Simulate Grid Telemetry Event:</span>
+          </div>
+
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={() => useEcoSync().simulatePeakEvent()}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 font-bold text-xs flex items-center gap-1.5 transition-all border border-amber-500/20"
+            >
+              <span className="material-symbols-outlined text-sm">bolt</span>
+              <span>Peak Tariff Surge</span>
+            </button>
+            <button
+              onClick={() => useEcoSync().simulateSolarSurge()}
+              className="px-3.5 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 font-bold text-xs flex items-center gap-1.5 transition-all border border-emerald-500/20"
+            >
+              <span className="material-symbols-outlined text-sm">solar_power</span>
+              <span>Solar Surplus Surge</span>
+            </button>
+            <button
+              onClick={() => useEcoSync().simulateRainRadar()}
+              className="px-3.5 py-1.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 font-bold text-xs flex items-center gap-1.5 transition-all border border-sky-500/20"
+            >
+              <span className="material-symbols-outlined text-sm">cloud</span>
+              <span>Precipitation Alert</span>
             </button>
           </div>
         </div>

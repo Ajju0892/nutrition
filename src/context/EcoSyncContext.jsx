@@ -584,13 +584,60 @@ export function EcoSyncProvider({ children }) {
       devicesAffected: newFlow.devicesAffected || 2,
       impact: newFlow.impact || '-10% kWh',
       trigger: newFlow.trigger || 'Custom Schedule',
-      action: newFlow.action || 'Optimize device setpoint'
+      action: newFlow.action || 'Optimize device setpoint',
+      lastTriggered: 'Just now'
     };
 
     setAutomations((prev) => [flow, ...prev]);
     showToast('Flow Created', `"${flow.title}" is now active in Luminous Engine.`, 'auto_mode');
     return flow;
   }, [showToast]);
+
+  // Trigger Automation Test / Manual Execution
+  const triggerAutomationNow = useCallback((id) => {
+    const flow = automations.find((a) => a.id === id);
+    if (!flow) return;
+
+    // Update lastTriggered timestamp
+    const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setAutomations((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, lastTriggered: `Today, ${nowStr}`, enabled: true } : a))
+    );
+
+    // Apply Telemetry & Appliance modifications based on category
+    if (flow.category === 'climate' || flow.id === 'peak_hours_eco') {
+      setAppliances((prev) =>
+        prev.map((app) => (app.id === 'hvac' ? { ...app, powerKw: 0.8, enabled: true } : app))
+      );
+    } else if (flow.category === 'water' || flow.id === 'smart_sprinkler_rain') {
+      setAppliances((prev) =>
+        prev.map((app) => (app.id === 'smart_sprinkler' ? { ...app, enabled: false, waterFlowLpm: 0 } : app))
+      );
+    } else if (flow.category === 'ev' || flow.id === 'ev_scheduled_charging') {
+      setAppliances((prev) =>
+        prev.map((app) => (app.id === 'ev_charger' ? { ...app, powerKw: 7.4, enabled: true } : app))
+      );
+    } else if (flow.id === 'solar_surplus_divert') {
+      setAppliances((prev) =>
+        prev.map((app) => (app.id === 'heat_pump' ? { ...app, powerKw: 1.2, enabled: true } : app))
+      );
+    }
+
+    addNotification({
+      title: `Flow Executed: ${flow.title}`,
+      message: `Trigger criteria met ("${flow.trigger}"). Action dispatched: ${flow.action}`,
+      category: flow.category || 'grid',
+      severity: 'info',
+      icon: flow.icon || 'play_arrow'
+    });
+
+    showToast(
+      `Flow Executed!`,
+      `"${flow.title}" dispatched live actions.`,
+      flow.icon || 'play_arrow',
+      flow.category === 'water' ? 'secondary' : 'primary'
+    );
+  }, [automations, addNotification, showToast]);
 
   // Delete Automation
   const deleteAutomation = useCallback((id) => {
@@ -738,6 +785,7 @@ export function EcoSyncProvider({ children }) {
     setAppliancePower,
     toggleAutomation,
     addAutomation,
+    triggerAutomationNow,
     deleteAutomation,
     updateSettings,
     markNotificationAsRead,
